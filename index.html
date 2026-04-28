@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía Trucha Arcoíris - Interactiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rosita-bajo: #FCE4EC;
+            --verde-dinero: #2ECC71;
+            --verde-dinero-oscuro: #219653;
+            --azul-profundo: #1A5276;
+            --azul-claro: #3498DB;
+            --azul-sutil: #EBF5FB;
+            --blanco: #FFFFFF;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--rosita-bajo);
+            color: var(--azul-profundo);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(52,152,219,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 80%, rgba(46,204,113,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(248,187,208,0.12) 0%, transparent 60%);
+        }
+
+        .main-header, .infographic-grid, .progress-track, .infography-footer {
+            position: relative; z-index: 1;
+        }
+
+        .main-header { text-align: center; margin-bottom: 44px; padding-top: 16px; }
+
+        .header-badge {
+            display: inline-block; font-size: 0.6rem; font-weight: 700;
+            letter-spacing: 3px; text-transform: uppercase;
+            color: var(--blanco); background: var(--azul-claro);
+            padding: 5px 16px; border-radius: 20px; margin-bottom: 16px;
+        }
+
+        .main-header h1 {
+            font-size: clamp(1.5rem, 5vw, 2.6rem); font-weight: 900;
+            letter-spacing: -0.3px; color: var(--azul-profundo);
+            line-height: 1.15; margin-bottom: 6px;
+        }
+
+        .header-sub { font-size: 0.95rem; font-weight: 400; color: var(--azul-claro); margin-bottom: 10px; }
+        .header-hint { font-size: 0.75rem; color: var(--azul-profundo); opacity: 0.45; }
+
+        .infographic-grid {
+            display: grid; grid-template-columns: 1fr; gap: 16px;
+            max-width: 1200px; margin: 0 auto;
+        }
+
+        @media (min-width: 540px) {
+            .infographic-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        }
+
+        @media (min-width: 1100px) {
+            .infographic-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
+        }
+
+        .data-card {
+            background: var(--blanco); border: 2.5px solid var(--azul-claro);
+            border-radius: 16px; padding: 24px 18px 20px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: flex-start; min-height: 210px;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(26,82,118,0.07);
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out,
+                        border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            opacity: 0; transform: translateY(20px);
+        }
+
+        .data-card.visible { opacity: 1; transform: translateY(0); }
+
+        .data-card:hover, .data-card.active {
+            transform: scale(1.05); background-color: var(--rosita-bajo);
+            border-color: var(--azul-profundo);
+            box-shadow: 0 8px 24px rgba(26,82,118,0.13);
+        }
+
+        .data-card.economic { border-color: var(--verde-dinero); }
+
+        .data-card.economic:hover, .data-card.economic.active {
+            background-color: #E8F8F0; border-color: var(--verde-dinero-oscuro);
+            box-shadow: 0 8px 24px rgba(46,204,113,0.15);
+        }
+
+        .data-card:focus-visible { outline: 3px solid var(--azul-claro); outline-offset: 3px; }
+
+        .icon-box {
+            width: 60px; height: 60px; display: flex; align-items: center;
+            justify-content: center; border-radius: 14px;
+            background: var(--azul-sutil); margin-bottom: 12px;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .data-card:hover .icon-box, .data-card.active .icon-box {
+            transform: scale(1.08); background: var(--blanco);
+        }
+
+        .data-card.economic .icon-box { background: #E8F8F0; }
+        .data-card.economic:hover .icon-box, .data-card.economic.active .icon-box { background: var(--blanco); }
+
+        .icon-box svg { transition: transform 0.3s ease-in-out; }
+        .data-card:hover .icon-box svg, .data-card.active .icon-box svg { transform: rotate(-4deg); }
+
+        .icon-tag {
+            position: absolute; top: 8px; right: 10px;
+            font-size: 0.55rem; font-weight: 700; color: var(--azul-claro);
+            opacity: 0.3; letter-spacing: 0.5px;
+        }
+        .data-card.economic .icon-tag { color: var(--verde-dinero); }
+
+        .data-card h3 {
+            font-size: 0.78rem; font-weight: 700; color: var(--azul-profundo);
+            text-align: center; letter-spacing: 0.2px; transition: color 0.3s ease;
+            line-height: 1.3;
+        }
+
+        .data-card.economic h3 { color: var(--verde-dinero-oscuro); }
+
+        .data-card::after {
+            content: ''; position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%); width: 22px; height: 3px;
+            border-radius: 3px; background: var(--azul-claro); opacity: 0.18;
+            transition: opacity 0.3s ease, height 0.3s ease;
+        }
+        .data-card.economic::after { background: var(--verde-dinero); }
+        .data-card:hover::after, .data-card.active::after { opacity: 0; height: 0; }
+
+        .reveal-content {
+            opacity: 0; max-height: 0; overflow: hidden; width: 100%;
+            text-align: center; margin-top: 0; padding: 0; border-radius: 12px;
+            background: rgba(255,255,255,0.55);
+            box-shadow: inset 0 4px 10px rgba(26,82,118,0.12), inset 0 -2px 6px rgba(26,82,118,0.05);
+            transition: opacity 0.4s ease-in-out 0.05s, max-height 0.45s ease-in-out,
+                        padding 0.4s ease-in-out, margin-top 0.4s ease-in-out;
+        }
+
+        .data-card:hover .reveal-content, .data-card.active .reveal-content {
+            opacity: 1; max-height: 220px; padding: 12px 8px; margin-top: 12px;
+        }
+
+        .data-card.economic .reveal-content {
+            background: rgba(255,255,255,0.6);
+            box-shadow: inset 0 4px 10px rgba(46,204,113,0.12), inset 0 -2px 6px rgba(46,204,113,0.05);
+        }
+
+        .stat {
+            font-size: 1.6rem; font-weight: 900; color: var(--azul-profundo);
+            display: block; line-height: 1.1; margin-bottom: 2px;
+        }
+        .data-card.economic .stat { color: var(--verde-dinero-oscuro); }
+
+        .stat-bar {
+            width: 100%; height: 4px; background: rgba(26,82,118,0.07);
+            border-radius: 4px; margin: 6px auto 6px; overflow: hidden;
+        }
+        .data-card.economic .stat-bar { background: rgba(46,204,113,0.1); }
+
+        .stat-bar-fill {
+            height: 100%; width: 0%; border-radius: 4px;
+            background: linear-gradient(90deg, var(--azul-claro), var(--azul-profundo));
+            transition: width 0.7s ease-in-out 0.15s;
+        }
+        .data-card:hover .stat-bar-fill, .data-card.active .stat-bar-fill { width: var(--w); }
+        .data-card.economic .stat-bar-fill {
+            background: linear-gradient(90deg, var(--verde-dinero), var(--verde-dinero-oscuro));
+        }
+
+        .mini-ring { display: flex; justify-content: center; margin: 4px 0 2px; }
+        .ring-arc { transition: stroke-dashoffset 0.9s ease-in-out 0.2s; }
+        .data-card.economic:hover .ring-arc, .data-card.economic.active .ring-arc { stroke-dashoffset: 56.6; }
+
+        .context {
+            font-size: 0.72rem; color: var(--azul-profundo); opacity: 0.65;
+            font-style: italic; line-height: 1.35;
+        }
+        .data-card.economic .context { color: var(--verde-dinero-oscuro); }
+
+        .progress-track {
+            max-width: 1200px; margin: 36px auto 20px; position: relative;
+            height: 5px; background: rgba(26,82,118,0.07);
+            border-radius: 5px; overflow: visible;
+        }
+
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--azul-claro), var(--verde-dinero));
+            border-radius: 5px; transition: width 0.5s ease;
+        }
+
+        .progress-label {
+            position: absolute; top: 12px; left: 0; font-size: 0.68rem;
+            color: var(--azul-profundo); opacity: 0.4;
+            transition: opacity 0.3s ease, color 0.3s ease;
+        }
+
+        .progress-track.done .progress-label {
+            opacity: 1; color: var(--verde-dinero-oscuro); font-weight: 700;
+        }
+
+        .infography-footer {
+            margin-top: 48px; padding: 26px 20px;
+            border-top: 2px solid var(--azul-claro);
+            background-color: var(--blanco); border-radius: 16px 16px 0 0;
+            text-align: center; max-width: 1200px;
+            margin-left: auto; margin-right: auto;
+            box-shadow: 0 -3px 14px rgba(26,82,118,0.06);
+        }
+
+        .footer-content p {
+            font-size: 0.8rem; color: var(--azul-profundo);
+            margin: 6px 0; line-height: 1.5;
+        }
+
+        .footer-content strong {
+            text-transform: uppercase; font-weight: 900;
+            font-size: 0.7rem; letter-spacing: 0.5px;
+        }
+
+        .footer-content a {
+            color: var(--azul-claro); text-decoration: underline;
+            text-underline-offset: 2px; transition: color 0.2s ease;
+        }
+        .footer-content a:hover { color: var(--azul-profundo); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+            .data-card { opacity: 1; transform: none; }
+            .data-card:hover, .data-card.active { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer" aria-hidden="true"></div>
+
+    <header class="main-header">
+        <span class="header-badge">Acuicultura</span>
+        <h1>PROYECTO TRUCHA ARCO&Iacute;RIS</h1>
+        <p class="header-sub">Optimizaci&oacute;n del Crecimiento y Nutrici&oacute;n</p>
+        <p class="header-hint">Pasa el cursor o toca cada tarjeta para revelar los datos</p>
+    </header>
+
+    <main class="infographic-grid">
+
+        <article class="data-card" data-id="e" tabindex="0" aria-label="Trucha Arcoíris">
+            <span class="icon-tag">e</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <ellipse cx="28" cy="32" rx="18" ry="9" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.1"/>
+                    <path d="M44 32L54 24L50 32L54 40Z" fill="var(--azul-claro)" fill-opacity="0.25"/>
+                    <path d="M14 27Q28 23 40 27" stroke="#E74C3C" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+                    <path d="M16 30Q28 27 38 30" stroke="#F39C12" stroke-width="2.5" fill="none" opacity="0.45" stroke-linecap="round"/>
+                    <path d="M16 34Q28 31 38 34" stroke="#2ECC71" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+                    <path d="M16 37Q28 34 36 37" stroke="#3498DB" stroke-width="2" fill="none" opacity="0.35" stroke-linecap="round"/>
+                    <circle cx="14" cy="30" r="2.5" fill="var(--azul-profundo)"/>
+                    <circle cx="13.5" cy="29.5" r="0.8" fill="white"/>
+                    <path d="M24 23Q28 18 32 23" stroke="var(--azul-claro)" stroke-width="1.2" fill="var(--azul-claro)" fill-opacity="0.15"/>
+                </svg>
+            </div>
+            <h3>Trucha Arco&iacute;ris</h3>
+            <div class="reveal-content">
+                <span class="stat">1</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:100%"></div></div>
+                <p class="context"><em>Oncorhynchus mykiss</em></p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="a" tabindex="0" aria-label="Impacto en el Crecimiento">
+            <span class="icon-tag">a</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <line x1="14" y1="50" x2="14" y2="10" stroke="var(--azul-claro)" stroke-width="1.5"/>
+                    <line x1="14" y1="50" x2="54" y2="50" stroke="var(--azul-claro)" stroke-width="1.5"/>
+                    <polyline points="18,42 28,36 38,26 48,14" stroke="var(--azul-claro)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polygon points="48,14 42,16 44,22" fill="var(--azul-claro)"/>
+                    <path d="M44,10 L52 6 L50 10 L52 14 Z" fill="var(--azul-claro)" opacity="0.35"/>
+                    <line x1="18" y1="50" x2="18" y2="47" stroke="var(--azul-claro)" stroke-width="1" opacity="0.3"/>
+                    <line x1="28" y1="50" x2="28" y2="40" stroke="var(--azul-claro)" stroke-width="1" opacity="0.3"/>
+                    <line x1="38" y1="50" x2="38" y2="30" stroke="var(--azul-claro)" stroke-width="1" opacity="0.3"/>
+                    <line x1="48" y1="50" x2="48" y2="18" stroke="var(--azul-claro)" stroke-width="1" opacity="0.3"/>
+                </svg>
+            </div>
+            <h3>Impacto en el Crecimiento</h3>
+            <div class="reveal-content">
+                <span class="stat">250-350g</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:70%"></div></div>
+                <p class="context">Peso alcanzable en ciclo de engorde</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="b" tabindex="0" aria-label="Proteínas y Grasas">
+            <span class="icon-tag">b</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M20 12Q30 22 20 32Q10 42 20 52" stroke="var(--azul-claro)" stroke-width="2" fill="none"/>
+                    <path d="M32 12Q22 22 32 32Q42 42 32 52" stroke="var(--azul-claro)" stroke-width="2" fill="none"/>
+                    <line x1="22" y1="17" x2="30" y2="17" stroke="var(--azul-claro)" stroke-width="1" opacity="0.45"/>
+                    <line x1="18" y1="27" x2="34" y2="27" stroke="var(--azul-claro)" stroke-width="1" opacity="0.45"/>
+                    <line x1="22" y1="37" x2="30" y2="37" stroke="var(--azul-claro)" stroke-width="1" opacity="0.45"/>
+                    <line x1="18" y1="47" x2="34" y2="47" stroke="var(--azul-claro)" stroke-width="1" opacity="0.45"/>
+                    <circle cx="50" cy="20" r="5" stroke="var(--azul-claro)" stroke-width="1.5" fill="var(--azul-claro)" fill-opacity="0.15"/>
+                    <circle cx="50" cy="36" r="4" stroke="var(--azul-claro)" stroke-width="1.5" fill="var(--azul-claro)" fill-opacity="0.1"/>
+                    <circle cx="50" cy="48" r="3.5" stroke="var(--azul-claro)" stroke-width="1.5" fill="var(--azul-claro)" fill-opacity="0.1"/>
+                </svg>
+            </div>
+            <h3>Prote&iacute;nas y Grasas</h3>
+            <div class="reveal-content">
+                <span class="stat">40-50%</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:85%"></div></div>
+                <p class="context">Prote&iacute;na cruda en dieta de engorde</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="d" tabindex="0" aria-label="Vitaminas y Minerales">
+            <span class="icon-tag">d</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M36 8L22 34L30 34L26 56L44 26L34 26Z" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.15" stroke-linejoin="round"/>
+                    <circle cx="16" cy="16" r="1.5" fill="var(--azul-claro)" opacity="0.5"/>
+                    <circle cx="50" cy="44" r="1.5" fill="var(--azul-claro)" opacity="0.5"/>
+                    <line x1="49" y1="12" x2="51" y2="16" stroke="var(--azul-claro)" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+                    <line x1="51" y1="12" x2="49" y2="16" stroke="var(--azul-claro)" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+                    <line x1="12" y1="46" x2="14" y2="50" stroke="var(--azul-claro)" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+                    <line x1="14" y1="46" x2="12" y2="50" stroke="var(--azul-claro)" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+                </svg>
+            </div>
+            <h3>Vitaminas / Minerales</h3>
+            <div class="reveal-content">
+                <span class="stat">12+</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:60%"></div></div>
+                <p class="context">Micronutrientes esenciales en la dieta</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="f" tabindex="0" aria-label="Alimentación Clave">
+            <span class="icon-tag">f</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M18 48Q12 38 16 28Q20 18 30 14Q38 12 44 18Q48 24 44 30Q40 34 36 32" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.08" stroke-linecap="round"/>
+                    <path d="M18 48L12 52" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 46L14 54" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M16 49L10 50" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M42 18Q48 10 54 8" stroke="var(--azul-claro)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                    <path d="M44 20Q50 14 52 12" stroke="var(--azul-claro)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                    <circle cx="40" cy="20" r="2" fill="var(--azul-profundo)"/>
+                    <line x1="24" y1="26" x2="20" y2="30" stroke="var(--azul-claro)" stroke-width="1" opacity="0.35"/>
+                    <line x1="26" y1="24" x2="22" y2="26" stroke="var(--azul-claro)" stroke-width="1" opacity="0.35"/>
+                    <line x1="28" y1="22" x2="24" y2="24" stroke="var(--azul-claro)" stroke-width="1" opacity="0.35"/>
+                </svg>
+            </div>
+            <h3>Alimentaci&oacute;n Clave</h3>
+            <div class="reveal-content">
+                <span class="stat">Carn&iacute;vora</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:50%"></div></div>
+                <p class="context">Langostino como fuente proteica principal</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="c" tabindex="0" aria-label="Alternativas Sostenibles">
+            <span class="icon-tag">c</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M32 8L52 18L52 36Q52 52 32 58Q12 52 12 36L12 18Z" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.08"/>
+                    <path d="M28 44Q22 36 26 26Q32 20 40 22Q42 30 38 38Q34 44 28 44Z" stroke="var(--azul-claro)" stroke-width="1.5" fill="var(--azul-claro)" fill-opacity="0.12"/>
+                    <path d="M28 44Q30 34 38 26" stroke="var(--azul-claro)" stroke-width="1" fill="none"/>
+                </svg>
+            </div>
+            <h3>Alternativas Sostenibles</h3>
+            <div class="reveal-content">
+                <span class="stat">30%</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:55%"></div></div>
+                <p class="context">Reducci&oacute;n de harina de pescado en dieta</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="j" tabindex="0" aria-label="Ración de Alimentos">
+            <span class="icon-tag">j</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <path d="M12 28Q12 50 32 52Q52 50 52 28Z" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.06"/>
+                    <line x1="10" y1="28" x2="54" y2="28" stroke="var(--azul-claro)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="24" cy="36" r="3" fill="var(--azul-claro)" opacity="0.2"/>
+                    <circle cx="32" cy="34" r="3.5" fill="var(--azul-claro)" opacity="0.25"/>
+                    <circle cx="40" cy="36" r="3" fill="var(--azul-claro)" opacity="0.2"/>
+                    <circle cx="28" cy="42" r="2.5" fill="var(--azul-claro)" opacity="0.15"/>
+                    <circle cx="36" cy="42" r="2.5" fill="var(--azul-claro)" opacity="0.15"/>
+                    <line x1="54" y1="30" x2="58" y2="30" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                    <line x1="54" y1="36" x2="58" y2="36" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                    <line x1="54" y1="42" x2="58" y2="42" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                </svg>
+            </div>
+            <h3>Raci&oacute;n de Alimentos</h3>
+            <div class="reveal-content">
+                <span class="stat">3-5%</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:45%"></div></div>
+                <p class="context">Del peso corporal diario</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="g" tabindex="0" aria-label="Frecuencia Diaria">
+            <span class="icon-tag">g</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <circle cx="32" cy="32" r="22" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.06"/>
+                    <line x1="32" y1="12" x2="32" y2="16" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="32" y1="48" x2="32" y2="52" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="12" y1="32" x2="16" y2="32" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="48" y1="32" x2="52" y2="32" stroke="var(--azul-claro)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="32" y1="32" x2="32" y2="20" stroke="var(--azul-profundo)" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="32" y1="32" x2="44" y2="28" stroke="var(--azul-profundo)" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="32" cy="32" r="2.5" fill="var(--azul-claro)"/>
+                </svg>
+            </div>
+            <h3>Frecuencia Diaria</h3>
+            <div class="reveal-content">
+                <span class="stat">2-6</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:60%"></div></div>
+                <p class="context">Veces al d&iacute;a seg&uacute;n fase</p>
+            </div>
+        </article>
+
+        <article class="data-card" data-id="h" tabindex="0" aria-label="Temperatura Óptima">
+            <span class="icon-tag">h</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <rect x="28" y="8" width="8" height="36" rx="4" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.06"/>
+                    <circle cx="32" cy="48" r="9" stroke="var(--azul-claro)" stroke-width="1.8" fill="var(--azul-claro)" fill-opacity="0.1"/>
+                    <rect x="30" y="22" width="4" height="20" rx="2" fill="var(--azul-claro)" opacity="0.35"/>
+                    <circle cx="32" cy="48" r="5" fill="var(--azul-claro)" opacity="0.3"/>
+                    <line x1="36" y1="16" x2="40" y2="16" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                    <line x1="36" y1="24" x2="40" y2="24" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                    <line x1="36" y1="32" x2="40" y2="32" stroke="var(--azul-claro)" stroke-width="1" opacity="0.4"/>
+                </svg>
+            </div>
+            <h3>Temperatura &Oacute;ptima</h3>
+            <div class="reveal-content">
+                <span class="stat">9-14&deg;C</span>
+                <div class="stat-bar"><div class="stat-bar-fill" style="--w:55%"></div></div>
+                <p class="context">Rango ideal para crecimiento</p>
+            </div>
+        </article>
+
+        <article class="data-card economic" data-id="i" tabindex="0" aria-label="Impacto Económico">
+            <span class="icon-tag">i</span>
+            <div class="icon-box">
+                <svg viewBox="0 0 64 64" width="48" height="48" fill="none">
+                    <circle cx="32" cy="30" r="22" stroke="var(--verde-dinero)" stroke-width="1.8" fill="var(--verde-dinero)" fill-opacity="0.06"/>
+                    <text x="32" y="37" text-anchor="middle" font-size="24" fill="var(--verde-dinero)" font-weight="900" font-family="Montserrat, sans-serif">$</text>
+                    <path d="M20 50Q24 44 28 46Q26 42 30 40" stroke="var(--verde-dinero)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+                    <path d="M28 46Q32 42 36 44" stroke="var(--verde-dinero)" stroke-width="1" fill="var(--verde-dinero)" fill-opacity="0.2" stroke-linecap="round" opacity="0.5"/>
+                </svg>
+            </div>
+            <h3>Impacto Econ&oacute;mico</h3>
+            <div class="reveal-content">
+                <span class="stat">70%</span>
+                <div class="mini-ring" aria-hidden="true">
+                    <svg viewBox="0 0 80 80" width="52" height="52">
+                        <circle cx="40" cy="40" r="30" stroke="var(--verde-dinero)" stroke-width="5" fill="none" opacity="0.15"/>
+                        <circle class="ring-arc" cx="40" cy="40" r="30" stroke="var(--verde-dinero)" stroke-width="5" fill="none"
+                            stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round"
+                            transform="rotate(-90 40 40)"/>
+                    </svg>
+                </div>
+                <p class="context">Gasto de Producci&oacute;n</p>
+            </div>
+        </article>
+
+    </main>
+
+    <div class="progress-track" aria-live="polite">
+        <div class="progress-fill" id="progressFill"></div>
+        <span class="progress-label" id="progressLabel">0 / 10 datos revelados</span>
+    </div>
+
+    <footer class="infography-footer">
+        <div class="footer-content">
+            <p><strong>Fuente:</strong> Gomez Mulluni, Y. D. (2017). <em>Crecimiento de trucha arco&iacute;ris (Oncorhynchus mykiss) en jaulas flotantes en la etapa de engorde</em>. Repositorio UNA-PUNO. <a href="http://repositorio.unap.edu.pe/handle/UNAP/6438" target="_blank" rel="noopener noreferrer">http://repositorio.unap.edu.pe/handle/UNAP/6438</a></p>
+            <p><strong>Dise&ntilde;ado por:</strong> Andrea Micaela De los Rios Quintana</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards         = document.querySelectorAll('.data-card');
+            const progressFill  = document.getElementById('progressFill');
+            const progressLabel = document.getElementById('progressLabel');
+            const progressTrack = document.querySelector('.progress-track');
+            const total         = cards.length;
+            const revealed      = new Set();
+            const hasHover      = window.matchMedia('(hover: hover)').matches;
+
+            function updateProgress() {
+                const count = revealed.size;
+                progressFill.style.width = ((count / total) * 100) + '%';
+                progressLabel.textContent = count + ' / ' + total + ' datos revelados';
+                if (count === total) {
+                    progressTrack.classList.add('done');
+                    progressLabel.textContent = 'Todos los datos revelados';
+                } else {
+                    progressTrack.classList.remove('done');
+                }
+            }
+
+            function markRevealed(card) {
+                const id = card.dataset.id;
+                if (!revealed.has(id)) {
+                    revealed.add(id);
+                    updateProgress();
+                }
+            }
+
+            if (hasHover) {
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => markRevealed(card));
+                    card.addEventListener('click', () => {
+                        card.classList.toggle('active');
+                        markRevealed(card);
+                    });
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            card.classList.toggle('active');
+                            markRevealed(card);
+                        }
+                    });
+                });
+            } else {
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const wasActive = card.classList.contains('active');
+                        cards.forEach(o => { if (o !== card) o.classList.remove('active'); });
+                        card.classList.toggle('active');
+                        if (!wasActive) markRevealed(card);
+                    });
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            card.click();
+                        }
+                    });
+                });
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const idx = Array.from(cards).indexOf(entry.target);
+                        setTimeout(() => entry.target.classList.add('visible'), idx * 60);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+
+            cards.forEach(card => observer.observe(card));
+        });
+    </script>
+
+</body>
+</html>
